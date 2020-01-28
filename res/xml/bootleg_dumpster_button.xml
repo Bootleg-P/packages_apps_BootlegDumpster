@@ -28,6 +28,12 @@
             android:summary="@string/swap_volume_buttons_summary"
             android:defaultValue="false" />
 
+	<com.bootleggers.dumpster.preferences.SystemSettingSwitchPreference
+            android:key="kill_app_longpress_back"
+            android:summary="@string/kill_app_longpress_back_summary"
+            android:title="@string/kill_app_longpress_back"
+            android:defaultValue="false" />
+
         <com.bootleggers.dumpster.preferences.SystemSettingSwitchPreference
             android:key="volume_rocker_wake"
             android:summary="@string/volume_rocker_wake_summary"
