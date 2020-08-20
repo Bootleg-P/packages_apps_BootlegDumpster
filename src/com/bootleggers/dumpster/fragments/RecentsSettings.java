@@ -51,8 +51,6 @@ public class RecentsSettings extends SettingsPreferenceFragment implements
         OnPreferenceChangeListener, DialogInterface.OnDismissListener {
 
     private ListPreference mRecentsLayoutStylePref;
-    private SwitchPreference mSlimToggle;
-    private Preference mSlimSettings;
     private Preference mRecentsIconPack;
     private SwitchPreference mRecentsClearAll;
     private ListPreference mRecentsClearAllLocation;
@@ -62,8 +60,6 @@ public class RecentsSettings extends SettingsPreferenceFragment implements
     private static final String RECENTS_CLEAR_ALL_PREF = "show_clear_all_recents";
     private static final String RECENTS_CLEAR_ALL_LOCATION = "recents_clear_all_location";
     private static final String RECENTS_MEMBAR_PREF = "systemui_recents_mem_display";
-    private static final String PREF_SLIM_RECENTS_SETTINGS = "slim_recents_settings";
-    private static final String PREF_SLIM_RECENTS = "use_slim_recents";
 
     private final static String[] sSupportedActions = new String[] {
         "org.adw.launcher.THEMES",
@@ -106,25 +102,17 @@ public class RecentsSettings extends SettingsPreferenceFragment implements
         mRecentsClearAllLocation.setSummary(mRecentsClearAllLocation.getEntry());
         mRecentsClearAllLocation.setOnPreferenceChangeListener(this);
 
-        // Slim Recents
-        mSlimSettings = (Preference) findPreference(PREF_SLIM_RECENTS_SETTINGS);
-        mSlimToggle = (SwitchPreference) findPreference(PREF_SLIM_RECENTS);
-        mSlimToggle.setOnPreferenceChangeListener(this);
-
         updateRecentsPreferences();
     }
 
     private void updateRecentsPreferences() {
-        boolean slimEnabled = Settings.System.getIntForUser(
-                getActivity().getContentResolver(), Settings.System.USE_SLIM_RECENTS, 0,
-                UserHandle.USER_CURRENT) == 1;
         boolean quickstepRecents = Settings.System.getIntForUser(
                 getActivity().getContentResolver(), Settings.System.RECENTS_LAYOUT_STYLE, 0,
                 UserHandle.USER_CURRENT) == 0;
         boolean goRecents = Settings.System.getIntForUser(
                 getActivity().getContentResolver(), Settings.System.RECENTS_LAYOUT_STYLE, 0,
                 UserHandle.USER_CURRENT) == 3;
-        
+
         // Either Stock or Slim Recents can be active at a time
         if (quickstepRecents || goRecents) {
             mRecentsLayoutStylePref.setEnabled(true);
@@ -132,16 +120,8 @@ public class RecentsSettings extends SettingsPreferenceFragment implements
             mRecentsClearAll.setEnabled(false);
             mRecentsClearAllLocation.setEnabled(false);
             mRecentsMemBar.setEnabled(false);
-            mSlimToggle.setChecked(false);
-        } else {
-            mRecentsLayoutStylePref.setEnabled(!slimEnabled);
-            mRecentsIconPack.setEnabled(!slimEnabled);
-            mRecentsClearAll.setEnabled(!slimEnabled);
-            mRecentsClearAllLocation.setEnabled(!slimEnabled);
-            mRecentsMemBar.setEnabled(!slimEnabled);
-            mSlimToggle.setChecked(slimEnabled);
-        }
     }
+   }
 
     @Override
     public int getMetricsCategory() {
@@ -170,20 +150,6 @@ public class RecentsSettings extends SettingsPreferenceFragment implements
                     Settings.System.RECENTS_CLEAR_ALL_LOCATION, location, UserHandle.USER_CURRENT);
             mRecentsClearAllLocation.setSummary(mRecentsClearAllLocation.getEntries()[index]);
         return true;
-        } else if (preference == mSlimToggle) {
-            boolean value = (Boolean) objValue;
-            int type = Settings.System.getInt(
-                getActivity().getContentResolver(), Settings.System.RECENTS_LAYOUT_STYLE, 0);
-            if (value && (type == 0)) { // change recents type to oreo when we are about to switch to slimrecents
-               Settings.System.putInt(getActivity().getContentResolver(),
-                    Settings.System.RECENTS_LAYOUT_STYLE, 1);
-                Utils.restartSystemUi(getContext());
-            }
-            Settings.System.putIntForUser(getActivity().getContentResolver(),
-                    Settings.System.USE_SLIM_RECENTS, value ? 1 : 0,
-                    UserHandle.USER_CURRENT);
-            updateRecentsPreferences();
-            return true;
         }
 
     return false;
